@@ -9,13 +9,19 @@ import (
 )
 
 var (
+	// ErrInvalidSyntax is returned and the syntax of input data is invalid.
 	ErrInvalidSyntax = errors.New("invalid syntax")
 )
 
+// Decoder reads the decoder stream.
 type Decoder struct {
 	reader *bufio.Reader
 }
 
+// Decode reads the decoder stream to find key-value pairs,
+// similar to how Unmarshal works.
+// The implementation complies with Apple's documentation at
+// https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/LoadingResources/Strings/Strings.html
 func (d *Decoder) Decode(v interface{}) error {
 	for {
 		line, err := d.reader.ReadString(byte('\n'))
@@ -63,6 +69,7 @@ func (d *Decoder) Decode(v interface{}) error {
 	return nil
 }
 
+// set finds the struct field by key and sets it with the value.
 func (d *Decoder) set(v interface{}, key, value string) {
 	p := reflect.ValueOf(v)
 	if p.Kind() != reflect.Ptr {
@@ -82,11 +89,14 @@ func (d *Decoder) set(v interface{}, key, value string) {
 	f.SetString(value)
 }
 
+// NewDecoder returns a Decoder that reads Apple strings file.
+// NewDecoder requires a stream reader, r.
 func NewDecoder(r io.Reader) *Decoder {
 	return &Decoder{reader: bufio.NewReader(r)}
 }
 
-// getString extract the string from the quote or unquote form, allowing leading or trailing spaces.
+// getString extract the string from the quote or unquote form,
+// allowing leading or trailing spaces.
 func getString(s string) string {
 	str := strings.Trim(s, " ")
 
