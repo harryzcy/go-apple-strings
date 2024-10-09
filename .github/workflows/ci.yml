@@ -8,4 +8,7 @@ permissions:
 jobs:
   go-test:
     name: Go Unit Tests
+    permissions:
+      contents: read
+      id-token: write
     uses: harryzcy/github-actions/.github/workflows/go.yml@main
